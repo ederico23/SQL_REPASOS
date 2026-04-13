@@ -100,12 +100,67 @@ FROM CLIENTES
 WHERE COD_POSTAL = 45915;
 
 --• que hicieron pedidos en Mayo
---NO ME SALE
+--NO ME SALE NADA PQ NO HAY PEDIDOS
 SELECT NOMBRE, APELLIDOS
 FROM CLIENTES
 WHERE ID_CLIENTE IN (SELECT ID_CLIENTE
                       FROM PEDIDOS
                       WHERE TO_CHAR(FECHA_PEDIDO, 'MM') = '05');
+
+
+
+/*15) ¿Hay pedidos en los que la fecha de envío fue puesta accidentalmente anterior a la fecha de
+pedido?*/
+SELECT NUMERO_PEDIDO
+FROM PEDIDOS
+WHERE (FECHA_PEDIDO > FECHA_ENVIO);
+
+
+/*16) Mostrar el nombre y apellidos de los clientes cuyos apellidos empiezan por 'Pe'*/
+SELECT NOMBRE, APELLIDOS
+FROM CLIENTES
+WHERE UPPER(APELLIDOS) LIKE 'PE%';
+
+
+/*17) Mostrar el nombre y dirección de los proveedores cuya dirección incluya la cadena 'del'*/
+SELECT NOMBRE, DIRECCION
+FROM PROVEEDORES
+WHERE UPPER(DIRECCION) LIKE '%DEL%';
+
+
+
+/*18) Listar el nombre y apellidos de los clientes que viven en Somosierra y cuyo apellido empieza
+con la letra ‘S’*/
+SELECT NOMBRE, APELLIDOS
+FROM CLIENTES
+WHERE UPPER(CIUDAD) = 'SOMOSIERRA' AND UPPER(APELLIDOS) LIKE 'S%';
+
+
+/*19) Listar el nombre y apellidos de los clientes que viven en Somosierra o en la provincia de
+ORENSE.*/
+SELECT NOMBRE, APELLIDOS
+FROM CLIENTES
+WHERE UPPER(CIUDAD) = 'SOMOSIERRA' OR UPPER(PROVINCIA) = 'ORENSE';
+
+
+
+/*20) Mostrar una lista de los nombres y número de teléfono de los proveedores de las provincias
+de MADRID y CACERES.*/
+SELECT NOMBRE, TELEFONO
+FROM PROVEEDORES
+WHERE UPPER(PROVINCIA) = 'MADRID' OR UPPER(PROVINCIA) = 'CACERES';
+
+
+
+/*21) Mostrar los datos de los pedidos del cliente 1001 en los que las fechas de pedido y envío
+coincidan.*/
+SELECT * 
+FROM PEDIDOS
+WHERE ID_CLIENTE = 1001;
+
+
+
+
 
 
 -------------------------------------------------------------------------------
