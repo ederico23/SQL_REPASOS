@@ -156,10 +156,61 @@ WHERE UPPER(PROVINCIA) = 'MADRID' OR UPPER(PROVINCIA) = 'CACERES';
 coincidan.*/
 SELECT * 
 FROM PEDIDOS
-WHERE ID_CLIENTE = 1001;
+WHERE ID_CLIENTE = 1001 AND FECHA_PEDIDO = FECHA_ENVIO;
 
 
+/*22) Mostrar los datos de los pedidos del cliente 1001 o que cumplan que la fecha de envío es 4
+días posterior a la fecha de pedido.*/
+SELECT *
+FROM PEDIDOS
+WHERE ID_CLIENTE = 1001
+    OR (FECHA_ENVIO - FECHA_PEDIDO) = 4;
 
+
+/*23) Mostrar nombre, apellidos, provincia y código postal de los clientes que se apelliden Pelayo
+en la provincia de CACERES o de los clientes cuyo código postal termine en 9*/
+SELECT NOMBRE, APELLIDOS, PROVINCIA, COD_POSTAL
+FROM CLIENTES
+WHERE UPPER(APELLIDOS) = 'PELAYO' AND UPPER(CIUDAD) = 'CACERES' OR COD_POSTAL LIKE '%9';
+
+
+/*24) Mostrar nombre, apellidos, provincia y código postal de los clientes que se apelliden Pelayo
+y de cualquier otro cliente que viva en la provincia de CACERES o tenga un código postal que
+termine en 9*/
+SELECT NOMBRE,APELLIDOS, PROVINCIA, COD_POSTAL
+FROM CLIENTES
+WHERE UPPER(APELLIDOS) = 'PELAYO' OR UPPER(CIUDAD) = 'CACERES' OR COD_POSTAL LIKE '%9';
+
+
+/*25) Mostrar los datos de los proveedores que tienen su sede en CACERES, ORENSE o MADRID.*/
+SELECT * 
+FROM PROVEEDORES
+WHERE UPPER(PROVINCIA) = 'ORENSE' OR  UPPER(PROVINCIA) = 'CACERES' OR UPPER(PROVINCIA) = 'MADRID';
+
+--OPCION2
+SELECT * 
+FROM PROVEEDORES
+WHERE UPPER(PROVINCIA)IN ('CACERES', 'ORENSE', 'MADRID');
+
+
+/*26) Listar los clientes cuyo apellido empieza por H*/
+SELECT NOMBRE, APELLIDOS
+FROM CLIENTES
+WHERE UPPER(APELLIDOS) LIKE 'H%';
+
+
+/*27) Listar los clientes que no viven en Robledo ni en Somosierra*/
+SELECT *
+FROM CLIENTES
+WHERE UPPER(CIUDAD) NOT IN( 'ROBLEDO' , 'SOMOSIERRA');
+
+
+/*28) Mostrar el número de pedido, el id_cliente y la fecha de pedido de todos los pedidos que ha
+realizado el cliente 1001 ordenado por fecha de pedido.*/
+SELECT NUMERO_PEDIDO, ID_CLIENTE, FECHA_PEDIDO
+FROM PEDIDOS
+WHERE ID_CLIENTE = 1001
+ORDER BY FECHA_PEDIDO;
 
 
 
