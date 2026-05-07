@@ -53,10 +53,18 @@ HAVING COUNT(*) = (SELECT MAX(COUNT(*))  --SELECCIONAR EL NUM MAXIMO
 
 /*77) Selecciona cuánto dinero se ha gastado en total en cada categoría el cliente con
 identificador 1001.*/
+<<<<<<< HEAD
 SELECT ID_CLIENTE, SUM(PRECIO_TOTAL)AS PRECIO_TOTAL
 FROM PEDIDOS
 WHERE ID_CLIENTE = 1001
 GROUP BY ID_CLIENTE;
+=======
+SELECT SUM(P.PRECIO_TOTAL)
+FROM PEDIDOS P
+JOIN CLIENTES C ON P.ID_CLIENTE = C.ID_CLIENTE
+WHERE C.ID_CLIENTE = 1001;
+
+>>>>>>> 8babaaa5b1e0b81c1afd8ad87948a70f21e3ec7a
 
 /*78) Muestra la descripción de las categorías que tengan más de 5 productos en venta.*/
 SELECT DISTINCT C.DESCRIPCION
@@ -64,6 +72,7 @@ FROM CATEGORIAS C
 JOIN PRODUCTOS P ON C.ID_CATEGORIA = P.ID_CATEGORIA
 WHERE P.STOCK > 5;
 
+<<<<<<< HEAD
 
 /*79) Muestra nombre, apellidos e identificador de los clientes que se han gastado más de
 14000 € en productos de la categoría 1.*/
@@ -101,16 +110,71 @@ FROM (
     GROUP BY E.ID_EMPLEADO, E.NOMBRE
     ORDER BY DINERO_RECAUDADO DESC)
 WHERE ROWNUM <= 3; --LOS 3 PRIMEROS DE LA CONSULTA
+=======
+/*79) Muestra nombre, apellidos e identificador de los clientes que se han gastado más de
+14000 € en productos de la categoría 1.*/
+SELECT DISTINCT C.NOMBRE, C.APELLIDOS, C.ID_CLIENTE
+FROM CLIENTES C 
+JOIN PEDIDOS P ON C.ID_CLIENTE = P.ID_CLIENTE
+JOIN DETALLES_PEDIDOS DP ON P.NUMERO_PEDIDO = DP.NUMERO_PEDIDO
+JOIN PRODUCTOS PR ON DP.NUMERO_PRODUCTO = PR.NUMERO_PRODUCTO
+WHERE P.PRECIO_TOTAL > 14000 AND PR.ID_CATEGORIA = 1;
+
+/*80) Muestra para cada empleado cuánto dinero ha hecho en pedidos*/
+SELECT E.NOMBRE, E.APELLIDOS, E.ID_EMPLEADO,SUM(P.PRECIO_TOTAL) AS TOTAL_RECAUDADO
+FROM EMPLEADOS E
+JOIN PEDIDOS P ON E.ID_EMPLEADO = P.ID_EMPLEADO
+GROUP BY E.ID_EMPLEADO, E.NOMBRE, E.APELLIDOS
+ORDER BY E.ID_EMPLEADO;
+
+
+/*81) Muestra cuánto han recaudado en pedidos los empleados 701,702 y 703.*/
+SELECT E.NOMBRE, E.APELLIDOS, E.ID_EMPLEADO,SUM(P.PRECIO_TOTAL) AS TOTAL_RECAUDADO
+FROM EMPLEADOS E
+JOIN PEDIDOS P ON E.ID_EMPLEADO = P.ID_EMPLEADO
+WHERE E.ID_EMPLEADO IN (701, 702, 703)
+GROUP BY E.ID_EMPLEADO, E.NOMBRE, E.APELLIDOS
+ORDER BY E.ID_EMPLEADO;
+
+
+/*82) Ahora muestra los 3 empleados que más dinero han recaudado en pedidos. Debe
+aparecer el identificador del empleado, el nombre y el dinero recaudado*/
+SELECT * 
+FROM (
+    SELECT E.ID_EMPLEADO, E.NOMBRE, E.APELLIDOS, SUM(P.PRECIO_TOTAL) AS TOTAL_RECAUDADO
+    FROM EMPLEADOS E
+    JOIN PEDIDOS P ON E.ID_EMPLEADO = P.ID_EMPLEADO
+    GROUP BY E.ID_EMPLEADO, E.NOMBRE, E.APELLIDOS
+    ORDER BY E.ID_EMPLEADO DESC)
+WHERE ROWNUM <= 3;
+>>>>>>> 8babaaa5b1e0b81c1afd8ad87948a70f21e3ec7a
 
 
 /*83) Busca el proveedor o proveedores junto con el nombre del producto que tiene menos
 días de envío. Debes mostrar nombre de proveedor junto con el nombre del producto
+<<<<<<< HEAD
 que tiene menos días de envío.*/
 SELECT PPR.NOMBRE, P.NOMBRE
 FROM PRODUCTOS_PROVEEDORES PPR
 JOIN PEDIDOS P ON PPR.NUMERO_PRODUCTO = P.NUMERO_PRODUCTO
 WHERE MIN(P.FECHA_ENVIO - P.FECHA_PEDIDO);
 
+=======
+que tiene menos días de envío*/
+
+SELECT PV.NOMBRE AS NOMBRE_PROVEEDOR, P.NOMBRE AS NOMBRE_PRODUCTO
+FROM PROVEEDORES PV
+JOIN PRODUCTOS_PROVEEDORES PP ON PV.ID_PROV = PP.ID_PROV
+JOIN PRODUCTOS P ON PP.NUMERO_PRODUCTO = P.NUMERO_PRODUCTO
+WHERE PP.DIAS_ENVIO = (SELECT MIN(DIAS_ENVIO) 
+                       FROM PRODUCTOS_PROVEEDORES);
+                       
+                                             
+
+                       
+                       
+                       
+>>>>>>> 8babaaa5b1e0b81c1afd8ad87948a70f21e3ec7a
 
 SELECT PR.NOMBRE AS PROVEEDOR, P.NOMBRE AS PRODUCTO, P.DIAS_ENVIO
 FROM PROVEEDORES PR
