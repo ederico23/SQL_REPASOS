@@ -83,7 +83,7 @@ ALTER USER ADMINISTRADOR ACCOUNT UNLOCK; --desbloquear la cuenta, estaba bloquea
 --CONEX SYSTEM
 GRANT CREATE USER TO ADMINISTRADOR; --conceder permiso de crear usuarios
 
---CONEX SYSTEM/ADMINISTRADOR (SE PUEDE HACER DESDE LAS 2 PERO NO ME HA QUEDADO CLARO EN EL ENUNCIADO)
+--CONEX ADMINISTRADOR (SE PUEDE HACER DESDE LAS 2 PERO NO ME HA QUEDADO CLARO EN EL ENUNCIADO)
 CREATE USER PRUEBA00
 IDENTIFIED BY PRUEBA00
 DEFAULT TABLESPACE USERS
@@ -125,10 +125,79 @@ CREATE TABLE TABLA_PRUEBA1
 );
 
 
+/*18. Asígnale una cuota de 500 K al usuario prueba1.*/
+
+--CONEX SYSTEM
+ALTER USER PRUEBA1 QUOTA 500K ON USERS;
 
 
+/*19. Como usuario prueba1, modifica su propia contraseña a pru1. ¿Puede
+modificar el propio usuario prueba1 su espacio de tablas por defecto? ¿Qué
+privilegio necesita? Asígnale dicho privilegio desde el usuario System y
+comprueba que ahora el usuario prueba1 puede modificarse a sí mismo su
+espacio de tabla o su cuota, por ejemplo.*/
+
+--CONEX PRUEBA1
+ALTER USER PRUEBA1 IDENTIFIED BY PRU1;
+
+--no, no tiene permiso para modificar su propio usuario, necesitara el permiso modify user
+
+--CONEX SYSTEM
+GRANT ALTER USER TO PRUEBA1;
+
+--CONEX PRUEBA1
+ALTER USER PRUEBA1 QUOTA 500K ON USERS;
 
 
+/*20. Como usuario administrador crea un nuevo usuario llamado ora1 con
+contraseña ora1 cuota 500k y espacios users y temp. Este nuevo usuario
+deberá poder conectarse a la BD y crear tablas. Crea una tabla para el usuario
+ora1¿Puedes insertar datos o manipular la tabla ? ¿Puedes crear
+procedimientos, triggers,… ? Indica qué privilegios necesitarías.*/
+
+--CONEX ADMINISTRADOR
+CREATE USER ORA1
+IDENTIFIED BY ORA1
+DEFAULT TABLESPACE USERS
+TEMPORARY TABLESPACE TEMP
+QUOTA 500K ON USERS;
+
+--CONEX ADMINISTRADOR
+GRANT CREATE TABLE TO ORA1;
+GRANT CREATE SESSION TO ORA1;
 
 
+--CONEX ORA1
+CREATE TABLE ORA1_TABLA
+(
+    ID_ORA1 NUMBER(3) CONSTRAINT ID_O1TABLA_PK PRIMARY KEY,
+    NOMBRE VARCHAR2(15)
+);
+
+--CONEX ORA1
+INSERT INTO ORA1_TABLA
+VALUES (1,'Eder');
+
+--CONEX ORA1
+UPDATE ORA1_TABLA
+SET NOMBRE = 'Mariano'
+WHERE ID_ORA1 = 1;
+
+
+/*21. Como usuario administrador borra el usuario ora1. Indica los pasos que has
+tenido que realizar para poder hacerlo*/
+
+--CONEX SYSTEM
+GRANT DROP USER TO ADMINISTRADOR;
+
+--CONEX ADMINISTRADOR
+DROP USER ORA1 CASCADE;
+
+
+/*22. Averiguar qué usuarios de la base de datos tienen asignado el privilegio “create
+user” de forma directa, ¿qué vista debe ser consultada? ¿Qué significa la
+opción ADMIN OPTION?*/
+
+SELECT * 
+FROM ALL_USERS;
 
