@@ -199,5 +199,126 @@ user” de forma directa, ¿qué vista debe ser consultada? ¿Qué significa la
 opción ADMIN OPTION?*/
 
 SELECT * 
-FROM ALL_USERS;
+FROM DBA_SYS_PRIVS
+WHERE PRIVILEGE = 'CREATE USER';
+
+--admin option significa que tambien puede dar privilegios a otros
+
+
+/*23. Hacer lo mismo para el privilegio “create session”.*/
+SELECT * 
+FROM DBA_SYS_PRIVS 
+WHERE PRIVILEGE = 'CREATE SESSION';
+
+
+
+/*24. En caso de que esté bloqueado, desbloquea el usuario hr de la base de datos y
+ponle como contraseña hr. Consulta las tablas de las que dispone este usuario.*/
+
+--CONEX SYSTEM
+ALTER USER Conexion_hr ACCOUNT UNLOCK;
+ALTER USER Conexion_hr IDENTIFIED BY HR;
+
+
+/*25. Concede permisos al usuario oracle4 para ejecutar consultas sobre la tabla
+employees del usuario hr (Crea previamente el usuario oracle4 con clave a 500k
+y tablespace users y temp, concédele privilegios para conectarse y crear tablas,
+crea una tabla en el usuario oracle4) Nota: previamente concede
+definitivamente al administrador el rol dba.*/
+
+--CONEX SYSTEM
+GRANT DBA TO ADMINISTRADOR;
+
+--CONEX SYSTEM
+CREATE USER ORACLE4
+IDENTIFIED BY ORACLE4
+DEFAULT TABLESPACE USERS
+TEMPORARY TABLESPACE TEMP
+QUOTA 500K ON USERS;
+
+--CONEX SYSTEM
+GRANT CREATE USER TO ORACLE4;
+GRANT CREATE TABLE TO ORACLE4;
+GRANT CREATE SESSION TO ORACLE4;
+GRANT SELECT ON Conexion_hr.employees TO oracle4;
+
+--CONEX ORACLE4
+CREATE TABLE PRUEBA_ORACLE4
+    (
+    ID_O4 NUMBER(4) CONSTRAINT ID_PO4_PK PRIMARY KEY,
+    NOMBRE VARCHAR(15)
+    );
+    
+
+
+/*26. Consulta los datos de la tabla employees (habiéndote conectado como usuario
+oracle4). Crear la tabla empleados a partir de la consulta anterior.*/
+
+--CONEX ORACLE4
+SELECT * FROM CONEXION_HR.EMPLOYEES;
+
+CREATE TABLE EMPLEADOS
+AS SELECT * FROM CONEXION_HR.EMPLOYEES;
+
+
+/*27. Consulta los datos de la tabla countries de hr ¿Has podido? ¿Por qué?*/
+
+--CONEX ORACLE4
+SELECT * 
+FROM CONEXION_HR.COUNTRIES;
+--NO DEJA PORQUE NO HEMOS DADO PERMISO PARA VER COUNTRIES
+
+/*28. Concede permisos a oracle4 para insertar registros en la tabla countries de hr*/
+
+--CONEX SYSTEM
+GRANT INSERT ON CONEXION_HR.COUNTRIES TO ORACLE4;
+
+
+/*29. Inserta el país España con código ES de Europa en la tabla countries como
+usuario oracle4*/
+
+--CONEX ORACLE4
+INSERT INTO CONEXION_HR.COUNTRIES (COUNTRY_ID, COUNTRY_NAME, REGION_ID)
+VALUES('ES', 'España', (SELECT REGION_ID FROM CONEXION_HR.REGIONS WHERE REGION_NAME = 'Europe'));
+
+
+
+/*30. Trata de borrar como usuario oracle4 la fila que has insertado*/
+DELETE CONEXION_HR.COUNTRIES
+WHERE COUNTRY_NAME = 'España';
+--PRIVILEGIOS INSUFICIENTES
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
