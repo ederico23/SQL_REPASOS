@@ -289,36 +289,311 @@ WHERE COUNTRY_NAME = 'España';
 --PRIVILEGIOS INSUFICIENTES
 
 
+/*31. Crea la tabla país como copia de countries desde el usuario HR.¨*/
+
+--CONEX HR
+CREATE TABLE EMPLEADOS AS
+SELECT *
+FROM Conexion_hr.EMPLOYEES;
+--LA HEMOS BORRADO ANTES
+
+
+/*32. Concede al usuario oracle4 permisos para borrar tablas de cualquier usuario.
+Borra desde el usuario oracle4 la tabla país del usuario hr.*/
+
+--CONEX SYSTEM
+GRANT DROP ANY TABLE TO ORACLE4;
+
+--CONEX ORACLE4
+DROP TABLE CONEXION_HR.EMPLEADOS;
+
+
+/*33. Oracle4 concede a todos los usuarios (actuales y futuros) cualquier tipo de
+privilegio sobre la tabla que ha creado en el ejercicio 25.*/
+
+--CONEX SYSTEM
+GRANT ALL ON ORACLE4.PRUEBA_ORACLE4 TO PUBLIC;
 
 
 
+/*34. Crea en oracle4 una segunda tabla2 con 3 campos (campo1, campo2 y campo3)
+concede al usuario hr permisos para modificar solo la columna campo2. Trata
+ahora de modificar como usuario hr dos columnas de esa tabla, ¿permite
+hacerlo?*/
+
+--ORACLE4
+CREATE TABLE TABLA2
+    (
+    CAMPO1 VARCHAR2(50),
+    CAMPO1 VARCHAR2(50),
+    CAMPO1 VARCHAR2(50)
+    );
+
+
+/*35. Comprueba que desde oracle 4 puedes borrar la tabla countries.*/
+
+--CONEX ORACLE4
+DROP TABLE CONEXION_HR.EMPLEADOS;
+
+
+/*36. Concede permisos al usuario oracle4 para que a su vez pueda crear usuarios así
+como darles cualquier privilegio.*/
+
+--CONEX SYSTEM
+GRANT CREATE USER TO ORACLE4 WITH ADMIN OPTION; --crear users
+GRANT DBA TO ORACLE4;--dar cualquier privilkegio
+
+
+/*37. Conéctate como usuario oracle4 y crea el usuario oracle4a con contraseña
+oracle4a espacio de tablas usuario y sin límite de cuota. Asígnale permisos de
+ejecución de consultas sobre la tabla jobs del usuario hr. Concede ahora
+privilegio de modificación sobre la columna coutry_name de la tabla countries
+a todos los usuarios*/
+
+--CONEX ORACLE4
+CREATE USER ORACLE4A
+IDENTIFIED BY ORACLE4A
+DEFAULT TABLESPACE USERS
+TEMPORARY TABLESPACE TEMP
+QUOTA UNLIMITED ON USRES;
+
+--CONEX SYSTEM
+GRANT SELECT ON CONEXION_HR.JOBS TO ORACLE4A;
+GRANT CREATE USER TO ORACLE4A;
+GRANT CREATE SESSION TO ORACLE4A;
+--GRANT UPDATE 
+GRANT UPDATE (REGION_NAME) ON CONEXION_HR.REGIONS TO PUBLIC;
 
 
 
+/*38. Comprueba desde el usuario hr qué permisos ha concedido sobre sus tablas a
+los demás usuarios. Comprueba desde el usuario oracle4 qué permisos ha
+recibido sobre las tablas de otros usuarios (usa la vista user_tab_privs).*/
+
+--CONEX HR
+SELECT * FROM USER_TAB_PRIVS;
+
+--CONEX ORACLE4
+SELECT * FROM USER_TAB_PRIVS;
 
 
 
+/*39. Consulta los privilegios de sistema asignados a oracle4a ( usa la vista
+dba_sys_privs).*/
+
+--ORACLE4A
+SELECT * FROM USER_SYS_PRIVS;
 
 
 
+/*40. Estando conectado como usuario “administrador” probar a crear un rol llamado
+“administrador”, ¿qué ocurre?*/
+
+--CONEX ADMINISTRADOR
+CREATE ROLE ADMINISTRADOR;
+--no permite crear un rol con el mismo nombre que un usuario ya existenete
+
+
+/*41. Idem estando conectado como usuario SYSTEM, ¿qué sucede?, ¿por qué?*/
+
+--CONEX system
+CREATE ROLE ADMINISTRADOR;
+--el mismo error por lo mismo de antes
+
+
+/*42. Comprobar en el diccionario de datos los usuarios o roles que poseen el
+privilegio “CREATE ROLE”. (Utiliza la vista dba_sys_privs).*/
+
+--CONEX SYSTEM
+SELECT * 
+FROM dba_sys_privs
+WHERE PRIVILEGE = 'CREATE ROLE';
+
+
+/*43. Crear un rol llamado “ADMIN”, asignarle los privilegios “create session”,
+“create user” y “CREATE ROLE”. Asignarlo al usuario administrador.*/
+
+--CONEX SYSTEM
+CREATE ROLE ADMIN;
+GRANT CREATE SESSION TO ADMIN;
+GRANT CREATE USER TO ADMIN;
+GRANT CREATE ROLE TO ADMIN;
+GRANT ADMIN TO ADMINISTRADOR;
 
 
 
+/*44. Consultar los privilegios de sistema que tiene asignados de forma directa el
+usuario “administrador”, revocarlos y asignarle el rol “admin.”.*/
+
+--CONEX SYSTEM
+SELECT *
+FROM DBA_SYS_PRIVS
+WHERE GRANTEE = 'ADMINISTRADOR';
+
+
+/*45. Crea el usuario usuario1 y asígnale el role connect y resource. Comprueba
+después en la vista correspondiente que efectivamente tiene esos roles.
+Comprueba también desde el EM que el usuario tiene marcados esos roles.*/
+
+--CONEX SYSTEM
+CREATE USER USUARIO1
+IDENTIFIED BY USUARIO1
+DEFAULT TABLESPACE USERS
+TEMPORARY TABLESPACE TEMP
+QUOTA 500K ON USERS;
+
+GRANT CONNECT TO USUARIO1;
+GRANT RESOURCE TO USUARIO1;
+
+SELECT * 
+FROM DBA_ROLE_PRIVS
+WHERE GRANTEE = 'USUARIO1';
 
 
 
+/*46. Crea el rol opera_jobs de modo que este rol adjudique permisos de selección,
+inserción y borrado sobre la tabla jobs del usuario HR. Y además tenga
+permisos para crear usuarios en la base de datos*/
+
+--CONEX SYSTEM
+CREATE ROLE OPERA_JOBS;
+
+GRANT SELECT ON CONEXION_HR.JOBS TO OPERA_JOBS;
+GRANT INSERT ON CONEXION_HR.JOBS TO OPERA_JOBS;
+GRANT DELETE ON CONEXION_HR.JOBS TO OPERA_JOBS;
+GRANT CREATE USER TO OPERA_JOBS;
+
+
+/*47. Comprueba en las correspondientes vistas los permisos que tiene asociados el
+rol opera_jobs.*/
+
+--CONEX SYSTEM
+SELECT *
+FROM DBA_SYS_PRIVS
+WHERE GRANTEE = 'OPERA_JOBS';
+
+
+/*48. Crea un usuario oracle5 con contraseña oracle5, espacio de tablas usuarios y
+sin límite de cuota. Asígnale a oracle5 y oracle4 el rol opera jobs(en una sola
+sentencia). Accede con el usuario oracle5 y comprueba que puedes insertar la
+fila ('SA_TA', 'XXXXX', 200,9000) en la tabla jobs de hr*/
+
+--CONEX SYSTEM
+CREATE USER ORACLE5
+IDENTIFIED BY ORACLE5
+DEFAULT TABLESPACE USERS
+TEMPORARY TABLESPACE TEMP
+QUOTA UNLIMITED ON USERS;
+
+--CONEX SYSTEM
+GRANT OPERA_JOBS TO ORACLE5, ORACLE4;
+
+--CONEX SYSTEM
+--primero necesita permisoss de create session
+GRANT CREATE SESSION TO ORACLE5;
+
+--CONEX ORACLE5
+INSERT INTO CONEXION_HR.JOBS
+VALUES('SA_TA', 'XXXXX', 200,9000);
+
+
+/*49. Retira el privilegio create user del role opera_jobs.*/
+
+--CONEX SYSTEM
+REVOKE CREATE USER FROM OPERA_JOBS;
+
+
+/*50. Retira al usuario oracle5 el rol opera_jobs.*/
+
+--CONEX SYSTEM
+REVOKE OPERA_JOBS FROM ORACLE5;
+
+
+/*51. Borra el rol opera_jobs*/
+
+--CONEX SYSTEM
+DROP ROLE OPERA_JOBS;
+
+
+/*52. Si cuando creamos un usuario no le asignamos ningún perfil, ¿qué perfil le
+adjudica ORACLE?Entra en la vista dba_profiles y comprueba los valores de los
+campos asociados al perfil DEFAULT.
+a. ¿Cuántas sesiones concurrentes por usuario permite ?
+b.¿Cuál es el límite de tiempo de inactividad?
+c. ¿Cuál es el máximo tiempo que una sesión puede permanecer inactiva?
+d.¿Cuántos intentos consecutivos fallidos permite antes de bloquear la cuenta?
+FAILED_LOGIN_ATTEMPTS.*/
+
+--se le asigna el perfil default
+--CONEX SYSTEM
+SELECT *
+FROM DBA_PROFILES
+WHERE PROFILE = 'DEFAULT';
+
+--A
+--CONEX SYSTEM
+SELECT * 
+FROM DBA_PROFILES
+WHERE PROFILE = 'DEFAULT' AND RESOURCE_NAME = 'SESSIONS_PER_USER';
+
+--B 
+--CONEX SYSTEM
+SELECT * 
+FROM DBA_PROFILES
+WHERE PROFILE = 'DEFAULT' AND RESOURCE_NAME = 'IDLE_TIME';
+
+--C
+--CONEX SYSTEM
+SELECT * 
+FROM DBA_PROFILES
+WHERE PROFILE = 'DEFAULT' AND RESOURCE_NAME = 'CONNECT_TIME';
+
+--D
+--CONEX SYSTEM
+SELECT * 
+FROM DBA_PROFILES
+WHERE PROFILE = 'DEFAULT' AND RESOURCE_NAME = 'FAILED_LOGIN_ATTEMPTS';
 
 
 
+/*53. Crea el perfil pruebas1 (desde el usuario administrador) de modo que solo
+pueda haber 2 sesiones concurrentes por usuario, el tiempo de inactividad será
+un máximo de 2’ y el nº de intentos fallidos antes de bloquear la cuenta 2.
+Indica los pasos realizados*/
+
+--CONEX ADMINISTRADOR
+CREATE PROFILE PRUEBAS1 LIMIT
+    SESSIONS_PER_USER 2
+    IDLE_TIME 2
+    FAILED_LOGIN_ATTEMPTS 2;
+    
+/*54. Modifica el usuario oracle4 de modo que su perfil sea pruebas1 y comprueba
+que se cumplen las condiciones del perfil alter user oracle4 profile pruebas*/
+
+--CONEX SYSTEM
+ALTER USER ORACLE4 PROFILE PRUEBAS1;
+SELECT *
+FROM DBA_PROFILES
+WHERE PROFILE = 'PRUEBAS1';
 
 
+/*55. Modifica el perfil pruebas1 cambiando el tiempo de inactividad a 3’ y el tiempo
+de sesión a 400’.*/
+
+--CONEX SYSTEM
+ALTER PROFILE PRUEBAS1 LIMIT
+    IDLE_TIME 3
+    CONNECT_TIME 400;
 
 
+/*56. Comprueba a través de la vista de perfiles cuales son los nuevos valores
+asignados.*/
+
+--CONEX SYSTEM
+SELECT *
+FROM DBA_PROFILES
+WHERE PROFILE = 'PRUEBAS1';
 
 
-
-
-
-
-
-
+/*57. Borra el perfil pruebas1.*/
+DROP PROFILE PRUEBAS1 CASCADE; 
