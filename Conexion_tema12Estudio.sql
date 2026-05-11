@@ -186,6 +186,165 @@ SELECT calcular_trienio(TO_DATE('05/10/2007', 'dd/MM/YYYY'), TO_DATE('05/10/2026
 /
 
 
+/*9. Codificar un procedimiento que reciba una lista de hasta 5 números y visualice su
+suma.*/
+CREATE OR REPLACE PROCEDURE sumaNumeros(
+--parametros
+    v_num1 IN NUMBER,
+    v_num2 IN NUMBER,
+    v_num3 IN NUMBER,
+    v_num4 IN NUMBER,
+    v_num5 IN NUMBER)
+IS 
+    v_num_resultado NUMBER;
+BEGIN
+    v_num_resultado := (v_num1 + v_num2 + v_num3 + v_num4 + v_num5);
+    DBMS_OUTPUT.PUT_LINE('La suma de los numeros introducidos es ' || v_num_resultado);
+END sumaNumeros;
+/
+EXECUTE sumaNumeros(5,5,5,5,5);
+/
+
+
+/*10. Escribir una función que devuelva solamente caracteres alfabéticos sustituyendo
+cualquier otro carácter por blancos a partir de una cadena que se pasará en la llamada.*/
+CREATE OR REPLACE FUNCTION cambiarCaracteres(
+    v_string_palabra IN VARCHAR2)
+RETURN VARCHAR2
+IS
+    v_string_modificada VARCHAR2(32767);
+    v_num_contador NUMBER;
+BEGIN
+    v_num_contador := 1;
+    WHILE v_num_contador <= LENGTH(v_string_palabra) LOOP
+        IF REGEXP_LIKE(SUBSTR(v_string_palabra,v_num_contador,1), '[A-Za-z]') THEN
+        v_string_modificada := v_string_modificada || SUBSTR(v_string_palabra,v_num_contador,1);
+        ELSE
+        v_string_modificada := v_string_modificada || ' ';
+        END IF;
+    v_num_contador := v_num_contador + 1;
+    END LOOP;
+    RETURN v_string_modificada;
+END cambiarCaracteres;
+/
+SELECT cambiarCaracteres('h0la') AS CAMBIO_PALABRA FROM dual;
+/
+
+
+/*11. Implementar un procedimiento que reciba un importe y visualice el desglose del
+cambio en unidades monetarias de 1 cent., 2 cents., 5 cents., 10 cents., 20 cents., 50
+cents., 1€, 2€, 5€, 10€, 20€, 50€ en orden inverso al que aparecen aquí enumeradas.*/
+CREATE OR REPLACE PROCEDURE dinero(
+    v_num_importe IN NUMBER)
+IS 
+    v_num_sobrante NUMBER;--lo que sobra 
+    v_num_monedas NUMBER;--num de monedas q llevan
+BEGIN
+    v_num_sobrante := v_num_importe * 100; --pasar a centimos
+    --50€
+    v_num_monedas :=TRUNC(v_num_sobrante/5000);
+    v_num_sobrante := MOD(v_num_sobrante, 5000);
+    DBMS_OUTPUT.PUT_LINE('50€: ' || v_num_monedas);
+    --20€
+    v_num_monedas :=TRUNC(v_num_sobrante/2000);
+    v_num_sobrante := MOD(v_num_sobrante, 2000);
+    DBMS_OUTPUT.PUT_LINE('20€: ' || v_num_monedas);
+    --10€
+    v_num_monedas :=TRUNC(v_num_sobrante/1000);
+    v_num_sobrante := MOD(v_num_sobrante, 1000);
+    DBMS_OUTPUT.PUT_LINE('10€: ' || v_num_monedas);
+    --5€
+    v_num_monedas :=TRUNC(v_num_sobrante/500);
+    v_num_sobrante := MOD(v_num_sobrante, 500);
+    DBMS_OUTPUT.PUT_LINE('5€: ' || v_num_monedas);
+    --2€
+    v_num_monedas := v_num_monedas + TRUNC(v_num_sobrante/200);
+    v_num_sobrante := MOD(v_num_sobrante, 200);
+    DBMS_OUTPUT.PUT_LINE('2€: ' || v_num_monedas);
+    --1€
+    v_num_monedas :=TRUNC(v_num_sobrante/100);
+    v_num_sobrante := MOD(v_num_sobrante, 100);
+    DBMS_OUTPUT.PUT_LINE('1€: ' || v_num_monedas);
+    --50cts
+    v_num_monedas :=TRUNC(v_num_sobrante/50);
+    v_num_sobrante := MOD(v_num_sobrante, 50);
+    DBMS_OUTPUT.PUT_LINE('50cts: ' || v_num_monedas);
+    --20cts
+    v_num_monedas :=TRUNC(v_num_sobrante/20);
+    v_num_sobrante := MOD(v_num_sobrante, 20);
+    DBMS_OUTPUT.PUT_LINE('20cts: ' || v_num_monedas);
+    --10cts
+    v_num_monedas :=TRUNC(v_num_sobrante/10);
+    v_num_sobrante := MOD(v_num_sobrante, 10);
+    DBMS_OUTPUT.PUT_LINE('10cts: ' || v_num_monedas);
+    --5cts
+    v_num_monedas :=TRUNC(v_num_sobrante/5);
+    v_num_sobrante := MOD(v_num_sobrante, 5);
+    DBMS_OUTPUT.PUT_LINE('5cts: ' || v_num_monedas);
+    --2cts
+    v_num_monedas :=TRUNC(v_num_sobrante/2);
+    v_num_sobrante := MOD(v_num_sobrante, 2);
+    DBMS_OUTPUT.PUT_LINE('2cts: ' || v_num_monedas);
+    --1cts
+    v_num_monedas := TRUNC(v_num_sobrante/1);
+    v_num_sobrante := MOD(v_num_sobrante, 1);
+    DBMS_OUTPUT.PUT_LINE('1cts: ' || v_num_monedas);
+END dinero;
+/
+EXECUTE dinero(1243);
+/
+
+
+/*12. Codificar un procedimiento que permita borrar un empleado cuyo número se pasará
+en la llamada.*/
+CREATE OR REPLACE PROCEDURE eliminar(
+    v_num_id IN emple.emp_no%TYPE)
+IS
+BEGIN
+    DELETE FROM emple
+    WHERE emp_no = v_num_id;
+END eliminar;
+/
+EXECUTE eliminar(7369);
+/
+
+select * 
+from emple;
+
+
+/*13. Escribir un procedimiento que modifique la localidad de un departamento. El
+procedimiento recibirá como parámetros el número del departamento y la localidad
+nueva.*/
+CREATE OR REPLACE PROCEDURE modificarLocalidad(
+    v_num_depart IN depart.dept_no%TYPE,
+    v_string_localidad IN depart.loc%TYPE)
+IS
+BEGIN
+    UPDATE DEPART
+    SET loc = v_string_localidad
+    WHERE dept_no = v_num_depart;
+END modificarLocalidad;
+/
+EXECUTE modificarLocalidad(99, 'ZARAGOZA');
+/
+
+select *
+from depart;
+
+
+/*14. Visualizar todos los procedimientos y funciones del usuario almacenados en la base de
+datos y su situación (valid o invalid).*/
+
+SELECT OBJECT_NAME, OBJECT_TYPE, STATUS
+FROM USER_OBJECTS
+WHERE OBJECT_TYPE IN ('PROCEDURE','FUNCTION');
+
+
+
+
+
+
+
 
 
 
