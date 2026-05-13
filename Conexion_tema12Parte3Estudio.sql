@@ -1,4 +1,4 @@
---CONEXION TEMA12ESTUDIO
+ --CONEXION TEMA12ESTUDIO
 
 /*Ejercicio propuesto:
 Escribe un disparador que inserte en la tabla auditaremple(col1 (VARCHAR2(200)) cualquier cambio
